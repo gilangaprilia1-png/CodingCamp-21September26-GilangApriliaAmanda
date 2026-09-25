@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense &amp; Budget Visualizer</title>
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Chart.js CDN for pie chart -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+      defer
+    ></script>
+
+    <!-- Main script (deferred so DOM is ready) -->
+    <script src="js/script.js" defer></script>
+  </head>
+
+  <body>
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <span class="header-icon" aria-hidden="true">💰</span>
+          <h1 class="header-title">Expense &amp; Budget Visualizer</h1>
+        </div>
+
+        <!-- Dark / Light mode toggle -->
+        <button
+          id="themeToggleBtn"
+          class="theme-toggle-btn"
+          aria-label="Toggle dark mode"
+          title="Toggle dark/light mode"
+        >
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Dark Mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+    <main class="app-main">
+
+      <!-- ── ROW 1: Total Balance + Add Transaction ───────── -->
+      <div class="grid-row grid-row--top">
+
+        <!-- Total Balance card -->
+        <section class="card balance-card" aria-labelledby="balanceHeading">
+          <h2 id="balanceHeading" class="card-label">Total Spending</h2>
+          <p id="totalBalance" class="balance-amount">Rp 0</p>
+          <p class="balance-sub">All-time total expenditure</p>
+        </section>
+
+        <!-- Add Transaction card -->
+        <section class="card form-card" aria-labelledby="formHeading">
+          <h2 id="formHeading" class="card-title">Add Transaction</h2>
+
+          <form id="transactionForm" novalidate>
+            <!-- Validation message -->
+            <div
+              id="formError"
+              class="form-error"
+              role="alert"
+              aria-live="polite"
+              hidden
+            ></div>
+
+            <!-- Item Name -->
+            <div class="form-group">
+              <label for="itemName">Item Name</label>
+              <input
+                type="text"
+                id="itemName"
+                name="itemName"
+                placeholder="e.g. Lunch, Grab, Cinema"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <!-- Amount -->
+            <div class="form-group">
+              <label for="amount">Amount (Rp)</label>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                placeholder="e.g. 25000"
+                min="1"
+                step="1"
+                required
+              />
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category" name="category" required>
+                <option value="">— Select Category —</option>
+                <option value="Food">🍔 Food</option>
+                <option value="Transport">🚌 Transport</option>
+                <option value="Fun">🎉 Fun</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn--primary">
+              ➕ Add Transaction
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <!-- ── ROW 2: Monthly Summary ────────────────────────── -->
+      <section class="card monthly-card" aria-labelledby="monthlyHeading">
+        <div class="monthly-header">
+          <h2 id="monthlyHeading" class="card-title">Monthly Summary</h2>
+
+          <!-- Month selector -->
+          <div class="month-selector-wrap">
+            <label for="monthPicker" class="sr-only">Select month</label>
+            <input
+              type="month"
+              id="monthPicker"
+              class="month-picker"
+              aria-label="Select month for summary"
+            />
+          </div>
+        </div>
+
+        <!-- Summary stat cards -->
+        <div class="summary-grid">
+          <div class="summary-stat">
+            <span class="stat-label">Total Spending</span>
+            <span id="monthTotal" class="stat-value">Rp 0</span>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">Transactions</span>
+            <span id="monthCount" class="stat-value">0</span>
+          </div>
+          <div class="summary-stat summary-stat--food">
+            <span class="stat-label">🍔 Food</span>
+            <span id="monthFood" class="stat-value">Rp 0</span>
+          </div>
+          <div class="summary-stat summary-stat--transport">
+            <span class="stat-label">🚌 Transport</span>
+            <span id="monthTransport" class="stat-value">Rp 0</span>
+          </div>
+          <div class="summary-stat summary-stat--fun">
+            <span class="stat-label">🎉 Fun</span>
+            <span id="monthFun" class="stat-value">Rp 0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ROW 3: Transaction List + Pie Chart ───────────── -->
+      <div class="grid-row grid-row--bottom">
+
+        <!-- Transaction List card -->
+        <section class="card list-card" aria-labelledby="listHeading">
+          <div class="list-header">
+            <h2 id="listHeading" class="card-title">Transactions</h2>
+
+            <!-- Sort dropdown -->
+            <div class="sort-wrap">
+              <label for="sortSelect" class="sr-only">Sort transactions</label>
+              <select id="sortSelect" class="sort-select" aria-label="Sort transactions">
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="highest">Highest Amount</option>
+                <option value="lowest">Lowest Amount</option>
+                <option value="categoryAZ">Category A–Z</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Scrollable transaction list -->
+          <div
+            id="transactionList"
+            class="transaction-list"
+            role="list"
+            aria-label="Transaction list"
+          >
+            <!-- Transactions rendered by JS -->
+            <p id="emptyMsg" class="empty-msg">No transactions yet. Add one above!</p>
+          </div>
+        </section>
+
+        <!-- Pie Chart card -->
+        <section class="card chart-card" aria-labelledby="chartHeading">
+          <h2 id="chartHeading" class="card-title">Spending by Category</h2>
+          <div class="chart-wrap">
+            <canvas
+              id="spendingChart"
+              role="img"
+              aria-label="Pie chart showing spending by category"
+            ></canvas>
+          </div>
+          <p id="chartEmpty" class="empty-msg chart-empty-msg" hidden>
+            Add transactions to see the chart.
+          </p>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+    <footer class="app-footer">
+      <p>Expense &amp; Budget Visualizer &copy; 2026 &mdash; Data stored locally in your browser.</p>
+    </footer>
+  </body>
+</html>
